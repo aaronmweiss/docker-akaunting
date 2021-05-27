@@ -33,6 +33,7 @@ RUN echo "mysql-server-8.0 mysql-server/root_password_again password ${MYSQL_DEF
         mysql-server-8.0 \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /var/lib/mysql /var/run/mysqld /var/mysqld/ \
+    && chown mysql:mysql /var/lib/mysql /var/run/mysqld /var/mysqld/
 
 
 # Install NGINX and PHP
@@ -43,68 +44,13 @@ RUN apt-get update \
         php7.4-mbstring php7.4-xml php7.4-curl php7.4-zip php7.4-gd php7.4-mysql php7.4-bcmath \
         composer \
     && rm -rf /var/lib/apt/lists/* \
-    #&& rm /etc/nginx/sites-enabled/default \
+    && rm /etc/nginx/sites-enabled/default \
     && sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.4/fpm/php.ini \
-    && mkdir p /run/php exit 0
+    && mkdir /run/php
 
 
 # Install Akaunting
 ENV AKAUNTING_VERSION 2.1.14
-
-WORKDIR /tmp/
-RUN mkdir -p /var/www/akaunting/root \
-    && curl \
-        --location \
-        -o akaunting.zip \
-        https://github.com/akaunting/akaunting/archive/${AKAUNTING_VERSION}.zip \
-    && unzip akaunting.zip \
-    && rm akaunting.zip \
-    && find akaunting-*/ -mindepth 1 -maxdepth 1 -exec mv -t /var/www/akaunting/ -- {} + \
-    && rmdir akaunting-* \
-    && chown -R www-data:www-data /var/www/akaunting
-
-
-# Install dependencies and config files
-# NOTE: Change to www-data as composer should never run as root.
-#       See https://getcomposer.org/root
-USER www-data
-WORKDIR /var/www/akaunting
-RUN composer install \
-    && php artisan vendor:publish --provider="Fideloper\Proxy\TrustedProxyServiceProvider" \
-    && cp -R /var/www/akaunting/config /var/www/akaunting/config.package
-
-
-# Install files
-USER root
-COPY supervisord/*.conf /etc/supervisor/conf.d/
-
-COPY nginx/akaunting /etc/nginx/sites-available/akaunting
-RUN chown www-data:www-data /etc/nginx/sites-available/akaunting \
-    && ln -s /etc/nginx/sites-available/akaunting /etc/nginx/sites-enabled
-
-
-# Start supervisord
-EXPOSE 8080/TCP
-
-COPY entrypoint.sh /usr/local/bin/
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"] && chown mysql:mysql /var/lib/mysql /var/run/mysqld /var/mysqld/
-
-
-# Install NGINX and PHP
-RUN apt-get update \
-    && apt-get install --yes --no-install-recommends \
-        nginx \
-        php7.4-fpm \
-        php7.4-mbstring php7.4-xml php7.4-curl php7.4-zip php7.4-gd php7.4-mysql \
-        composer \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm /etc/nginx/sites-enabled/default \
-    && sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.4/fpm/php.ini \
-    && mkdir p /run/php
-
-
-# Install Akaunting
-ENV AKAUNTING_VERSION 1.1.13
 
 WORKDIR /tmp/
 RUN mkdir -p /var/www/akaunting/root \
