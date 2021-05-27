@@ -79,7 +79,7 @@ RUN apt-get update \
         php7.4-mbstring php7.4-xml php7.4-curl php7.4-zip php7.4-gd php7.4-mysql php7.4-bcmath \
         composer \
     && rm -rf /var/lib/apt/lists/* \
-    && rm /etc/nginx/sites-enabled/default \
+    #&& rm /etc/nginx/sites-enabled/default \
     && sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.4/fpm/php.ini \
     && mkdir /run/php
 
