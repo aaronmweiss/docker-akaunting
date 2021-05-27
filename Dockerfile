@@ -33,42 +33,6 @@ RUN echo "mysql-server-8.0 mysql-server/root_password_again password ${MYSQL_DEF
         mysql-server-8.0 \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /var/lib/mysql /var/run/mysqld /var/mysqld/ \
-FROM ubuntu:16.04
-LABEL mantainer="info@kuralabs.io"
-
-
-# Setup and install base system software
-USER root
-ENV DEBIAN_FRONTEND noninteractive
-
-RUN echo "locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8" | debconf-set-selections \
-    && echo "locales locales/default_environment_locale select en_US.UTF-8" | debconf-set-selections \
-    && apt-get update \
-    && apt-get --yes --no-install-recommends install \
-        locales tzdata sudo \
-        ca-certificates apt-transport-https software-properties-common \
-        bash-completion iproute2 curl unzip nano tree \
-    && rm -rf /var/lib/apt/lists/*
-ENV LANG en_US.UTF-8
-
-
-# Install supervisord
-RUN apt-get update \
-    && apt-get --yes --no-install-recommends install \
-        supervisor dirmngr \
-    && rm -rf /var/lib/apt/lists/*
-
-
-# Install MySQL
-ENV MYSQL_DEFAULT_PASSWORD uYqBu/41C4Iog4vq9eShKg==
-
-RUN echo "mysql-server-8.0 mysql-server/root_password_again password ${MYSQL_DEFAULT_PASSWORD}" | debconf-set-selections \
-    && echo "mysql-server-8.0 mysql-server/root_password password ${MYSQL_DEFAULT_PASSWORD}" | debconf-set-selections \
-    && apt-get update && apt-get install --yes \
-        mysql-server-8.0 \
-    && rm -rf /var/lib/apt/lists/* \
-    && mkdir -p /var/lib/mysql /var/run/mysqld /var/mysqld/ \
-    && chown mysql:mysql /var/lib/mysql /var/run/mysqld /var/mysqld/
 
 
 # Install NGINX and PHP
@@ -136,7 +100,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && rm /etc/nginx/sites-enabled/default \
     && sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.4/fpm/php.ini \
-    && mkdir /run/php
+    && mkdir p /run/php
 
 
 # Install Akaunting
