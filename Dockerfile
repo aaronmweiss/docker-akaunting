@@ -135,7 +135,7 @@ RUN apt-get update \
         composer \
     && rm -rf /var/lib/apt/lists/* \
     && rm /etc/nginx/sites-enabled/default \
-    && sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.0/fpm/php.ini \
+    && sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.4/fpm/php.ini \
     && mkdir /run/php
 
 
